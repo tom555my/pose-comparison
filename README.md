@@ -1,85 +1,51 @@
-# Tommy Chung | Full-Stack AI Developer
+# Pose Off! - Party Game
 
-A premium, minimalist personal portfolio website built with React Router 7 and Tailwind CSS 4.
+**Pose Off!** is a high-energy party game where teams compete to recreate poses. A host provides a target pose, teams upload their best attempt, and AI (Google Gemini 1.5 Flash) acts as the judge, scoring the similarity and providing roast-style feedback.
 
-## 🚀 Tech Stack
+## Features
 
-- **Core**: [React Router 7](https://reactrouter.com/)
-- **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
+- **AI Judging**: Uses Google's Gemini 1.5 Flash model to analyze limb angles, body orientation, and facial expressions.
+- **Instant Feedback**: Get a similarity percentage (0-100%) and a fun, context-aware comment from the AI judge.
+- **Modern UI**: Built with a sleek, dark-mode aesthetic using Tailwind CSS v4 and Framer Motion animations.
+
+## Prerequisites
+
+- **Node.js**: v24 or higher.
+- **Package Manager**: `pnpm` (recommended).
+- **API Key**: A Google Gemini API Key.
+
+## Setup
+
+1.  **Install Dependencies**
+
+    ```bash
+    pnpm install
+    ```
+
+2.  **Environment Configuration**
+    Create a `.dev.vars` file in the root directory and add your Gemini API key:
+
+    ```bash
+    GEMINI_API_KEY=your_api_key_here
+    ```
+
+3.  **Run Locally**
+    Start the development server:
+    ```bash
+    pnpm run dev
+    ```
+    Open your browser to [http://localhost:5173](http://localhost:5173).
+
+## Tech Stack
+
+- **Framework**: [React Router v7](https://reactrouter.com/)
+- **Deployment**: [Cloudflare Workers](https://workers.cloudflare.com/)
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
+- **AI Model**: [Google Gemini 1.5 Flash](https://ai.google.dev/)
 - **Animations**: [Framer Motion](https://www.framer.com/motion/)
-- **Icons**: [Lucide React](https://lucide.dev/) & [React Icons](https://react-icons.github.io/react-icons/)
-- **Deployment**: [Cloudflare Pages](https://pages.cloudflare.com/)
 
-## 🛠 Tooling
+## Development
 
-- **Package Manager**: [pnpm](https://pnpm.io/)
-- **Linter**: [oxlint](https://oxc.rs/docs/guide/usage/linter.html) (Fastest JS linter)
-- **Formatter**: [oxfmt](https://oxc.rs/docs/guide/usage/formatter.html) (Fastest JS formatter)
-- **Version Management**: Enforced Node.js >= 24
-
-## 🏁 Getting Started
-
-### Prerequisites
-
-Ensure you are using **Node.js v24** or higher. You can use `nvm` to switch:
-
-```bash
-nvm use
-```
-
-### Installation
-
-Install dependencies using `pnpm`:
-
-```bash
-pnpm install
-```
-
-### Development
-
-Start the development server:
-
-```bash
-pnpm run dev
-```
-
-The site will be available at `http://localhost:5173`.
-
-### Linting & Formatting
-
-Clean and format the code using high-performance Rust-based tools:
-
-```bash
-# Run linter
-pnpm run lint
-
-# Run formatter
-pnpm run format
-```
-
-## 🏗 Project Structure
-
-- `app/components/`: Reusable UI components (Hero, Experience, Projects, Skills).
-- `app/routes/`: Page routes.
-- `app/app.css`: Global styles and Tailwind 4 design tokens.
-- `public/`: Static assets (favicon, etc.).
-
-## 📦 Building for Production
-
-Create a production build:
-
-```bash
-pnpm run build
-```
-
-## ☁️ Deployment
-
-Deploy to Cloudflare:
-
-```bash
-pnpm run deploy
-```
-
----
-
-Built with ❤️ by Tommy Chung.
+- **Typecheck**: `pnpm run typecheck`
+- **Build**: `pnpm run build`
+- **Deploy**: `pnpm run deploy`
