@@ -1,0 +1,67 @@
+@import 'tailwindcss';
+
+@theme {
+	--color-background: #000000;
+	--color-foreground: #d0d0d0;
+	--color-muted: #a3a3a3;
+	--color-primary: #e36414;
+	--color-accent-orange: #f59e0b;
+	--color-accent-green: #10b981;
+
+	--font-mono:
+		'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+		'Liberation Mono', 'Courier New', monospace;
+	--font-sans:
+		'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+		'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif,
+		'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+@layer base {
+	body {
+		@apply bg-background text-foreground font-mono selection:bg-primary/30;
+		min-height: 100vh;
+		position: relative;
+		overflow-x: hidden;
+	}
+
+	/* The background glow adjusted to the new primary color */
+	body::before {
+		content: '';
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background: radial-gradient(
+			circle at 50% -20%,
+			rgba(227, 100, 20, 0.15) 0%,
+			rgba(0, 0, 0, 0) 70%
+		);
+		pointer-events: none;
+		z-index: -1;
+	}
+
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		@apply text-white font-semibold;
+	}
+
+	a {
+		@apply transition-colors duration-200;
+	}
+}
+
+@layer components {
+	.section-container {
+		@apply max-w-2xl mx-auto px-6 py-12;
+	}
+
+	.text-handwritten {
+		font-family: 'Gloria Hallelujah', cursive;
+	}
+}
