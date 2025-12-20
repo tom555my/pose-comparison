@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Form, useActionData, useNavigation } from "react-router";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, Sparkles, Trophy } from "lucide-react";
+import { Loader2, Sparkles, Trophy, X } from "lucide-react";
 import type { Route } from "./+types/party";
 import { comparePoses } from "../lib/gemini.server";
 
@@ -37,6 +37,13 @@ export default function Party() {
 
   const [targetPreview, setTargetPreview] = useState<string | null>(null);
   const [attemptPreview, setAttemptPreview] = useState<string | null>(null);
+  const [showResults, setShowResults] = useState(false);
+
+  useEffect(() => {
+    if (actionData?.result) {
+      setShowResults(true);
+    }
+  }, [actionData]);
 
   useEffect(() => {
     return () => {
@@ -141,13 +148,21 @@ export default function Party() {
 
         {/* Results Overlay */}
         <AnimatePresence>
-          {actionData?.result && (
+          {showResults && actionData?.result && (
             <motion.div
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               className="fixed inset-x-4 bottom-4 md:inset-x-auto md:w-full md:max-w-2xl md:bottom-12 md:left-1/2 md:-translate-x-1/2 z-50"
             >
               <div className="card-float p-8 text-center border-4 border-white ring-4 ring-purple-100 relative overflow-hidden">
+
+                {/* Close Button */}
+                <button
+                  onClick={() => setShowResults(false)}
+                  className="absolute top-4 right-4 z-20 text-black/50 hover:text-black hover:bg-black/5 rounded-full p-2 transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
 
                 {/* Confetti/Decor */}
                 <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-pink-400 via-purple-400 to-indigo-400" />

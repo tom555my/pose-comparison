@@ -28,7 +28,7 @@ export async function comparePoses(
   Return ONLY a valid JSON object with the following structure:
   {
     "score": <number between 0 and 100>,
-    "feedback": "<short, fun, punchy feedback string. If score is high, praise them! If low, roast them gently but encourage a retry.>"
+    "feedback": "<short, fun, punchy feedback string. If score is high, praise them! If low, roast them gently but encourage a retry. Use Cantonese (HK) for feedback.>"
   }
   `;
 
