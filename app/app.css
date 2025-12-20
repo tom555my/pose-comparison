@@ -1,43 +1,43 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
-  --color-background: #e3cde7;
-  --color-surface: #ffffff;
-  --color-foreground: #000000;
-  --color-primary: #7c3aed;
-  --color-secondary: #000000;
+	--color-background: #e3cde7;
+	--color-surface: #ffffff;
+	--color-foreground: #000000;
+	--color-primary: #7c3aed;
+	--color-secondary: #000000;
 
-  --font-serif: "DM Serif Display", serif;
-  --font-sans: "DM Sans", sans-serif;
+	--font-serif: 'DM Serif Display', serif;
+	--font-sans: 'DM Sans', sans-serif;
 
-  --shadow-float: 0 10px 40px -10px rgba(0, 0, 0, 0.1);
-  --shadow-hard: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+	--shadow-float: 0 10px 40px -10px rgba(0, 0, 0, 0.1);
+	--shadow-hard: 4px 4px 0px 0px rgba(0, 0, 0, 1);
 }
 
 @layer base {
-  body {
-    @apply bg-background text-foreground font-sans selection:bg-purple-300 selection:text-black;
-    min-height: 100vh;
-    position: relative;
-    overflow-x: hidden;
-  }
+	body {
+		@apply bg-background text-foreground font-sans selection:bg-purple-300 selection:text-black;
+		min-height: 100vh;
+		position: relative;
+		overflow-x: hidden;
+	}
 
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    @apply font-serif text-black font-normal;
-  }
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		@apply font-serif text-black font-normal;
+	}
 }
 
 @layer components {
-  .btn-pill {
-    @apply inline-flex items-center justify-center rounded-full bg-black text-white font-medium px-8 py-3 transition-transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:pointer-events-none cursor-pointer;
-  }
+	.btn-pill {
+		@apply inline-flex items-center justify-center rounded-full bg-black text-white font-medium px-8 py-3 transition-transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:pointer-events-none cursor-pointer;
+	}
 
-  .card-float {
-    @apply bg-surface rounded-3xl shadow-float border border-white/50 backdrop-blur-sm;
-  }
+	.card-float {
+		@apply bg-surface rounded-3xl shadow-float border border-white/50 backdrop-blur-sm;
+	}
 }
