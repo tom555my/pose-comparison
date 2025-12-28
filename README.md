@@ -1,10 +1,10 @@
 # Pose Off! - Party Game
 
-**Pose Off!** is a high-energy party game where teams compete to recreate poses. A host provides a target pose, teams upload their best attempt, and AI (Google Gemini 1.5 Flash) acts as the judge, scoring the similarity and providing roast-style feedback.
+**Pose Off!** is a high-energy party game where teams compete to recreate poses. A host provides a target pose, teams upload their best attempt, and AI (Google Gemini) acts as the judge, scoring the similarity and providing roast-style feedback.
 
 ## Features
 
-- **AI Judging**: Uses Google's Gemini 1.5 Flash model to analyze limb angles, body orientation, and facial expressions.
+- **AI Judging**: Uses Google's Gemini Flash model to analyze limb angles, body orientation, and facial expressions.
 - **Instant Feedback**: Get a similarity percentage (0-100%) and a fun, context-aware comment from the AI judge.
 - **Modern UI**: Built with a sleek, dark-mode aesthetic using Tailwind CSS v4 and Framer Motion animations.
 
@@ -41,11 +41,14 @@
 - **Framework**: [React Router v7](https://reactrouter.com/)
 - **Deployment**: [Cloudflare Workers](https://workers.cloudflare.com/)
 - **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
-- **AI Model**: [Google Gemini 1.5 Flash](https://ai.google.dev/)
+- **AI Model**: [Google Gemini Flash](https://ai.google.dev/)
 - **Animations**: [Framer Motion](https://www.framer.com/motion/)
+- **Linting & Formatting**: [Oxlint](https://oxc.rs/docs/guide/usage/linter) & [Oxfmt](https://github.com/oxc-project/oxc)
 
 ## Development
 
 - **Typecheck**: `pnpm run typecheck`
+- **Lint**: `pnpm run lint`
+- **Format**: `pnpm run format`
 - **Build**: `pnpm run build`
 - **Deploy**: `pnpm run deploy`
