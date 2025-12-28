@@ -1,8 +1,23 @@
+import { experimental_useObject as useObject } from '@ai-sdk/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Loader2, Sparkles, Trophy, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { Form } from 'react-router';
+import { useEffect, useRef, useState } from 'react';
+import { ResponseSchema } from '../lib/schema';
 
+// Helper to convert File to base64
+async function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      // Remove data URL prefix (e.g., "data:image/jpeg;base64,")
+      const base64 = result.split(',')[1];
+      resolve(base64);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
 
 export default function Party() {
   // UI Local State
@@ -10,77 +25,15 @@ export default function Party() {
   const [attemptPreview, setAttemptPreview] = useState<string | null>(null);
   const [showResults, setShowResults] = useState(false);
 
-  // Streaming State
-  const [isStreaming, setIsStreaming] = useState(false);
-  const [streamResult, setStreamResult] = useState<{ score: number; feedback: string } | null>(null);
-  const [streamError, setStreamError] = useState<string | null>(null);
+  // File refs for access during submit
+  const targetFileRef = useRef<File | null>(null);
+  const attemptFileRef = useRef<File | null>(null);
 
-  // Partial Parser State
-  const [partialFeedback, setPartialFeedback] = useState<string>('');
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!targetPreview || !attemptPreview) return;
-
-    setIsStreaming(true);
-    setStreamResult(null);
-    setStreamError(null);
-    setPartialFeedback('AI is judging...');
-    setShowResults(true);
-
-    const formData = new FormData(e.currentTarget);
-
-    try {
-      const response = await fetch('/api/compare', {
-        method: 'POST',
-        body: formData
-      });
-
-      if (!response.ok || !response.body) {
-        throw new Error('Failed to start stream');
-      }
-
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let accumulatedText = '';
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value, { stream: true });
-        accumulatedText += chunk;
-
-        // Try to extract feedback (naive partial parsing for JSON structure)
-        // Gemini usually outputs: { "score": ..., "feedback": "..." }
-        // We look for the "feedback" key in the string.
-        const feedbackMatch = accumulatedText.match(/"feedback":\s*"([^"]*)/);
-        if (feedbackMatch && feedbackMatch[1]) {
-          // Unescape JSON string partially
-          let rawFeedback = feedbackMatch[1];
-          // Very rough unescape for visual effect
-          rawFeedback = rawFeedback.replace(/\\n/g, '\n').replace(/\\"/g, '"');
-          setPartialFeedback(rawFeedback);
-        }
-      }
-
-      // Final parse
-      try {
-        const finalResult = JSON.parse(accumulatedText);
-        setStreamResult(finalResult);
-        setPartialFeedback(finalResult.feedback); // Ensure clean final text
-      } catch (jsonErr) {
-        console.error("JSON Parse error:", jsonErr, accumulatedText);
-        setStreamError("Failed to parse AI response.");
-      }
-
-    } catch (err) {
-      console.error(err);
-      setStreamError('Connection lost. Try again!');
-    } finally {
-      setIsStreaming(false);
-    }
-  };
+  // useObject hook from AI SDK
+  const { object, submit, isLoading, error, stop } = useObject({
+    api: '/api/compare',
+    schema: ResponseSchema,
+  });
 
   useEffect(() => {
     return () => {
@@ -92,15 +45,45 @@ export default function Party() {
   const handleImageChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     setPreview: (url: string) => void,
+    fileRef: React.MutableRefObject<File | null>,
   ) => {
     if (e.target.files && e.target.files[0]) {
-      setPreview(URL.createObjectURL(e.target.files[0]));
+      const file = e.target.files[0];
+      fileRef.current = file;
+      setPreview(URL.createObjectURL(file));
     }
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!targetFileRef.current || !attemptFileRef.current) return;
+
+    setShowResults(true);
+
+    // Convert files to base64
+    const [targetBase64, attemptBase64] = await Promise.all([
+      fileToBase64(targetFileRef.current),
+      fileToBase64(attemptFileRef.current),
+    ]);
+
+    // Submit to useObject
+    submit({
+      targetImage: {
+        data: targetBase64,
+        type: targetFileRef.current.type,
+      },
+      attemptImage: {
+        data: attemptBase64,
+        type: attemptFileRef.current.type,
+      },
+    });
   };
 
   const reset = () => {
     setTargetPreview(null);
     setAttemptPreview(null);
+    targetFileRef.current = null;
+    attemptFileRef.current = null;
     window.location.reload();
   };
 
@@ -124,10 +107,8 @@ export default function Party() {
         </header>
 
         {/* Main Interface */}
-        <Form
-          method="post"
+        <form
           onSubmit={handleSubmit}
-          encType="multipart/form-data"
           className="space-y-10"
         >
           <div className="grid md:grid-cols-2 gap-8">
@@ -141,7 +122,7 @@ export default function Party() {
               <ImageUploadCard
                 name="targetImage"
                 preview={targetPreview}
-                onChange={(e) => handleImageChange(e, setTargetPreview)}
+                onChange={(e) => handleImageChange(e, setTargetPreview, targetFileRef)}
                 emptyLabel="Upload the Goal"
                 emoji="🎯"
               />
@@ -157,7 +138,7 @@ export default function Party() {
               <ImageUploadCard
                 name="attemptImage"
                 preview={attemptPreview}
-                onChange={(e) => handleImageChange(e, setAttemptPreview)}
+                onChange={(e) => handleImageChange(e, setAttemptPreview, attemptFileRef)}
                 emptyLabel="Upload the Fail"
                 emoji="📸"
               />
@@ -166,22 +147,21 @@ export default function Party() {
 
           {/* Action Buttons */}
           <div className="flex justify-center pb-12">
-            {(streamResult || isStreaming) ? (
+            {(object || isLoading) ? (
               <button
                 type="button"
-                onClick={reset}
-                disabled={isStreaming}
+                onClick={isLoading ? stop : reset}
                 className="btn-pill bg-white text-black border-2 border-black hover:bg-neutral-50 disabled:opacity-50"
               >
-                {isStreaming ? 'Judging...' : 'Play Again ↺'}
+                {isLoading ? 'Stop ⏹' : 'Play Again ↺'}
               </button>
             ) : (
               <button
                 type="submit"
-                disabled={!targetPreview || !attemptPreview || isStreaming}
+                disabled={!targetPreview || !attemptPreview || isLoading}
                 className="btn-pill text-lg h-16 px-12 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all"
               >
-                {isStreaming ? (
+                {isLoading ? (
                   <span className="flex items-center gap-2">
                     <Loader2 className="animate-spin" /> Judging...
                   </span>
@@ -193,11 +173,11 @@ export default function Party() {
               </button>
             )}
           </div>
-        </Form>
+        </form>
 
         {/* Results Overlay */}
         <AnimatePresence>
-          {showResults && (isStreaming || streamResult) && (
+          {showResults && (isLoading || object) && (
             <motion.div
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
@@ -205,7 +185,7 @@ export default function Party() {
             >
               <div className="card-float p-8 text-center border-4 border-white ring-4 ring-purple-100 relative overflow-hidden">
                 {/* Close Button */}
-                {!isStreaming && (
+                {!isLoading && (
                   <button
                     onClick={() => setShowResults(false)}
                     className="absolute top-4 right-4 z-20 text-black/50 hover:text-black hover:bg-black/5 rounded-full p-2 transition-colors"
@@ -227,28 +207,28 @@ export default function Party() {
                   </div>
 
                   <div className="text-9xl font-serif text-black leading-none">
-                    {streamResult ? streamResult.score : (
+                    {object?.score !== undefined ? object.score : (
                       <span className="text-6xl animate-pulse">...</span>
                     )}
-                    {streamResult && <span className="text-4xl align-top opacity-40">%</span>}
+                    {object?.score !== undefined && <span className="text-4xl align-top opacity-40">%</span>}
                   </div>
 
                   <p className="text-2xl font-serif leading-relaxed text-neutral-800">
-                    "{streamResult ? streamResult.feedback : partialFeedback}"
-                    {isStreaming && <span className="inline-block w-2 h-6 ml-1 bg-purple-500 animate-blink align-middle" />}
+                    "{object?.feedback ?? 'AI is judging...'}"
+                    {isLoading && <span className="inline-block w-2 h-6 ml-1 bg-purple-500 animate-blink align-middle" />}
                   </p>
                 </div>
               </div>
             </motion.div>
           )}
 
-          {streamError && (
+          {error && (
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               className="fixed top-24 left-1/2 -translate-x-1/2 bg-red-100 text-red-600 px-6 py-3 rounded-full font-bold shadow-lg z-50 border border-red-200"
             >
-              🚨 {streamError}
+              🚨 {error.message || 'Connection lost. Try again!'}
             </motion.div>
           )}
         </AnimatePresence>
